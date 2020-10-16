@@ -4,7 +4,6 @@ use DBI;
 use Log::Log4perl;
 use Modern::Perl;
 use POSIX qw( ceil floor modf round strftime trunc );
-use Redis;
 use Tie::IxHash;
 
 BEGIN {
