@@ -134,9 +134,9 @@ while ( 1 ){
     print "Punkte: ";
     chomp( $punkte_real = <STDIN> );
 
-    if ( $punkte_real > $punktzahl || $punkte_real < 0 ){
+    if ( $punkte_real > $punktzahl || $punkte_real < 0 || $punkte_real =~ m/\,/g ){
 	print "*******************************************************************************\n";
-	print "****** Eingabe jenseits des zulässigen Bereichs. Bitte erneut versuchen! ******\n";
+	print "***************************** Unzulässige Eingabe! ****************************\n";
 	print "*******************************************************************************\n";	
 	next;
     }
