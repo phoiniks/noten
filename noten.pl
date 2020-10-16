@@ -111,8 +111,7 @@ for my $key ( sort { $a <=> $b } keys %ergebnis ){
 
 print $csv "\n\n\n";
 
-my $table = $fach . "_" . $lokalzeit;
-$table =~ s/\://g;
+my $table = $fach;
 
 my $create = "CREATE TABLE IF NOT EXISTS $table(id INTEGER PRIMARY KEY, schueler TEXT, zensur INTEGER, punkte REAL, zeit DATE DEFAULT (DATETIME('NOW', 'LOCALTIME')))";
 
