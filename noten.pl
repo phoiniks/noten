@@ -151,16 +151,24 @@ while ( 1 ){
     print $csv sprintf "Notenpunkte: %d, Punktzahl: %.1f\n", $zensur, $punkte_real;
 }
 
-print $csv "\n\nNotenverteilung in der Klausur";
+print $csv "\n\nNotenverteilung in der Klausur\n\n";
 
-my $select = "SELECT zensur, COUNT(zensur) as haeufigkeit FROM $fach GROUP BY zensur";
+my $select = "SELECT zensur FROM $fach";
 
-while( my @row = $sth->selectrow_array( $select ) ){
-    printf "Punkte: %d, Vorkommen: %d\n", $row[0], $row[1];
-    print $csv sprintf "Punkte: %d, Vorkommen: %d\n", $row[0], $row[1];
-    $log->info( sprintf "Punkte: %d, Vorkommen: %d\n", $row[0], $row[1] );
+my %vorkommen;
+
+$sth = $dbh->prepare( $select );
+$sth->execute();
+while( my @row = $sth->fetchrow_array ){
+    $vorkommen{ $row[0] }++;
 }
 
-`csv2pdf --in $csv_datei`;
+for my $key ( sort { $a <=> $b } keys %vorkommen ){
+    print $csv sprintf "Zensur %.1f, %d\n", $key, $vorkommen{ $key };
+    printf "Zensur %.1f, %d\n", $key, $vorkommen{ $key };
+    $log->info( sprintf "Zensur %.1f, %d", $key, $vorkommen{ $key } );
+}
+
+`csv2pdf --in $csv_datei --latex_encode --theme Redmond`;
 
 $log->info( "ENDE" );
