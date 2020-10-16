@@ -74,7 +74,7 @@ my $ergebnis = intervalle( \@notenbereiche );
 my %ergebnis = %$ergebnis;
 
 my $csv_datei = "Noten_" . $fach . "_" . $lokalzeit . ".csv";
-my $tex_datei = "Noten_" . $fach . "_" . $lokalzeit . ".tex";
+
 open my $csv, ">", $csv_datei;
 my $notenpunkte = 0;
 my %punkte;
@@ -151,10 +151,16 @@ while ( 1 ){
     print $csv sprintf "Notenpunkte: %d, Punktzahl: %.1f\n", $zensur, $punkte_real;
 }
 
-`csv2latex $csv_datei > $tex_datei`;
+print $csv "\n\nNotenverteilung in der Klausur";
 
-sleep 5;
+my $select = "SELECT zensur, COUNT(zensur) as haeufigkeit FROM $fach GROUP BY zensur";
 
-`pdflatex $tex_datei`;
+while( my @row = $sth->selectrow_array( $select ) ){
+    printf "Punkte: %d, Vorkommen: %d\n", $row[0], $row[1];
+    print $csv sprintf "Punkte: %d, Vorkommen: %d\n", $row[0], $row[1];
+    $log->info( sprintf "Punkte: %d, Vorkommen: %d\n", $row[0], $row[1] );
+}
+
+`csv2pdf --in $csv_datei`;
 
 $log->info( "ENDE" );
