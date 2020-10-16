@@ -25,7 +25,7 @@ my $lokalzeit = strftime "%A_%d_%B_%Y_%H:%M:%S", localtime;
 $log->info( "BEGINN" );
 $log->info( $lokalzeit );
 
-my $dbh = DBI->connect( "dbi:SQLite:dbname=noten.db", "", "", { PrintError => 1 } );
+my $dbh = DBI->connect( "dbi:SQLite:dbname=:memory:", "", "", { PrintError => 1 } );
 
 print "Bitte Gesamtpunktzahl eingeben: ";
 chomp( my $punktzahl = <STDIN> );
