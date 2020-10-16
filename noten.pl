@@ -56,9 +56,9 @@ tie %zuordnung, "Tie::IxHash";
 
 my @notenbereiche;
 while ( my ( $schluessel, $werte ) = each %zuordnung ){
-    my @values = map { (modf ($_ * $punktzahl/100))[1] } @$werte;
-    @values = reverse( @values );
-    $zuordnung{ $schluessel } = \@values;
+    my @werte = map { (modf ($_ * $punktzahl/100))[1] } @$werte;
+    @werte = reverse( @werte );
+    $zuordnung{ $schluessel } = \@werte;
     $log->info( $schluessel . ": " . "$werte[0]" );
     push @notenbereiche, $werte[0];
 }
