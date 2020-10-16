@@ -6,12 +6,12 @@ sub paar {
     \@liste;
 }
 
-sub paare {
+sub intervalle {
     my $liste = shift;
 
     my @paarung;
     my $count = 0;
-    
+
     for my $element ( @$liste ){
 	if ( $element == 0 ){
 	    push @paarung, [ $element, $liste->[++$count] ];
@@ -23,19 +23,10 @@ sub paare {
 	}
     }
 
-    \@paarung;
-}
 
-sub intervalle {
-    my $liste = shift;
+    my %paarung = map { $_->[0] => $_->[1] } @paarung;
 
-    my @paarung;
-    
-    for ( @$liste ){
-	push @paarung, paar( $_->[0], $_->[1] );
-    }
-
-    \@paarung;
+    \%paarung;
 }
 
 1

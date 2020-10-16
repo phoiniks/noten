@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use autodie;
+use Data::Dumper;
 use Log::Log4perl;
 use Modern::Perl;
 use POSIX qw( ceil floor modf round strftime trunc );
@@ -63,6 +64,8 @@ while ( my ( $key, $values ) = each %zuordnung ){
 $log->info( "@notenbereiche" );
 
 $log->info( "LETZTER WERT IN LISTE: " . $notenbereiche[-1] );
+
+unshift @notenbereiche, '0';
 
 my $ergebnis = intervalle( \@notenbereiche );
 
