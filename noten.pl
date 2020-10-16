@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use autodie;
-use Data::Dumper;
+use DBI;
 use Log::Log4perl;
 use Modern::Perl;
 use POSIX qw( ceil floor modf round strftime trunc );
@@ -24,6 +24,8 @@ my $lokalzeit = strftime "%A_%d_%B_%Y_%H:%M:%S", localtime;
 
 $log->info( "BEGINN" );
 $log->info( $lokalzeit );
+
+my $dbh = DBI->connect( "dbi:SQLite:dbname=noten.db", "", "", { PrintError => 1 } );
 
 print "Bitte Gesamtpunktzahl eingeben: ";
 chomp( my $punktzahl = <STDIN> );
@@ -107,9 +109,19 @@ for my $key ( sort { $a <=> $b } keys %ergebnis ){
     $notenpunkte++;
 }
 
-$log->info( Dumper( \%punkte ) );
-
 print $csv "\n\n\n";
+
+my $table = $fach . "_" . $lokalzeit;
+$table =~ s/\://g;
+
+my $create = "CREATE TABLE IF NOT EXISTS $table(id INTEGER PRIMARY KEY, schueler TEXT, zensur INTEGER, punkte REAL, zeit DATE DEFAULT (DATETIME('NOW', 'LOCALTIME')))";
+
+print "$create\n";
+
+my $rv = $dbh->do( $create );
+
+my $insert = "INSERT INTO $table (schueler, zensur, punkte) VALUES( ?, ?, ? )";
+my $sth = $dbh->prepare( $insert );
 
 my $punkte_real;
 while ( 1 ){
@@ -133,9 +145,11 @@ while ( 1 ){
     print $csv sprintf "Schüler/in: %s, ", $schueler;
 
     $punkte = round $punkte_real;
-    my $note = $punkte{ sprintf "%.1f", round $punkte };
+    my $zensur = $punkte{ sprintf "%.1f", round $punkte };
+
+    $sth->execute( $schueler, $zensur, $punkte );
     
-    print $csv sprintf "Notenpunkte: %d, Punktzahl: %.1f\n", $note, $punkte_real; 
+    print $csv sprintf "Notenpunkte: %d, Punktzahl: %.1f\n", $zensur, $punkte_real;
 }
 
 `csv2latex $csv_datei > $tex_datei`;
