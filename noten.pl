@@ -55,12 +55,12 @@ tie %zuordnung, "Tie::IxHash";
     );
 
 my @notenbereiche;
-while ( my ( $key, $values ) = each %zuordnung ){
-    my @values = map { (modf ($_ * $punktzahl/100))[1] } @$values;
+while ( my ( $schluessel, $werte ) = each %zuordnung ){
+    my @values = map { (modf ($_ * $punktzahl/100))[1] } @$werte;
     @values = reverse( @values );
-    $zuordnung{ $key } = \@values;
-    $log->info( $key . ": " . "$values[0]" );
-    push @notenbereiche, $values[0];
+    $zuordnung{ $schluessel } = \@values;
+    $log->info( $schluessel . ": " . "$werte[0]" );
+    push @notenbereiche, $werte[0];
 }
 
 $log->info( "@notenbereiche" );
@@ -85,15 +85,15 @@ print $csv sprintf "Fach: %s\n", $fach;
 print $csv sprintf "Gesamtpunktzahl: %d\n\n", $punktzahl;
 
 my $punkte;
-for my $key ( sort { $a <=> $b } keys %ergebnis ){
-    printf "Note: %d, Anfang: %d, Ende: %d\n", $notenpunkte, $key, $ergebnis{ $key };
-    $log->info( sprintf "Anfang: %d, Ende: %d, Note: %d", $key, $ergebnis{ $key }, $notenpunkte );
+for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
+    printf "Note: %d, Anfang: %d, Ende: %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
+    $log->info( sprintf "Anfang: %d, Ende: %d, Note: %d", $schluessel, $ergebnis{ $schluessel }, $notenpunkte );
 
-    print $csv sprintf "%d bis %d: %d Punkte\n", $key, $ergebnis{ $key }, $notenpunkte;
+    print $csv sprintf "%d bis %d: %d Punkte\n", $schluessel, $ergebnis{ $schluessel }, $notenpunkte;
 
-    my $next = range( $key, $ergebnis{ $key }, 0.5 );
+    my $next = range( $schluessel, $ergebnis{ $schluessel }, 0.5 );
 
-    my $ende = $ergebnis{ $key };
+    my $ende = $ergebnis{ $schluessel };
 
     while ( $punkte = $next->() ){
 	$punkte = sprintf "%.1f", $punkte;
@@ -102,7 +102,7 @@ for my $key ( sort { $a <=> $b } keys %ergebnis ){
 	# $log->info( $notenpunkte . ": " . $punkte );
     }
 
-    $punkte{ sprintf "%.1f", $ergebnis{ $key } } = $notenpunkte;
+    $punkte{ sprintf "%.1f", $ergebnis{ $schluessel } } = $notenpunkte;
 
     $log->info( $ende );
     
@@ -163,11 +163,19 @@ while( my @row = $sth->fetchrow_array ){
     $vorkommen{ $row[0] }++;
 }
 
-for my $key ( sort { $a <=> $b } keys %vorkommen ){
-    print $csv sprintf "Zensur %.1f, %d\n", $key, $vorkommen{ $key };
-    printf "Zensur %.1f, %d\n", $key, $vorkommen{ $key };
-    $log->info( sprintf "Zensur %.1f, %d", $key, $vorkommen{ $key } );
+my $zaehler = 0;
+my $summe = 0;
+for my $schluessel ( sort { $a <=> $b } keys %vorkommen ){
+    print $csv sprintf "Zensur %.1f, %d\n", $schluessel, $vorkommen{ $schluessel };
+    printf "Zensur %.1f, %d\n", $schluessel, $vorkommen{ $schluessel };
+    $log->info( sprintf "Zensur %.1f, %d", $schluessel, $vorkommen{ $schluessel } );
+    $summe += $schluessel;
+    $zaehler++;
 }
+
+my $durchschnitt = $summe / $zaehler;
+
+print $csv sprintf "\n\nDurchschnitt: %.1f\n", $durchschnitt;
 
 `csv2pdf --in $csv_datei --latex_encode --theme Redmond`;
 
