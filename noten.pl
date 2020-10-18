@@ -3,7 +3,7 @@ use autodie;
 use DBI;
 use Log::Log4perl;
 use Modern::Perl;
-use POSIX qw( round strftime );
+use POSIX qw( modf round strftime );
 use Tie::IxHash;
 use YAML qw( LoadFile );
 
@@ -94,8 +94,8 @@ print $csv sprintf "Gesamtpunktzahl: %d\n\n", $punktzahl;
 
 my $punkte;
 for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
-    printf "Note: %d, Anfang: %d, Ende: %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
-    $log->info( sprintf "Noten: %d, Anfang: %d, Ende: %d, Note: %d", $notenpunkte, $schluessel, $ergebnis{ $schluessel } );
+    printf "Zensur: %d, Anfang: %d, Ende: %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
+    $log->info( sprintf "Zensur: %d, Anfang: %d, Ende: %d", $notenpunkte, $schluessel, $ergebnis{ $schluessel } );
 
     print $csv sprintf "Zensur: %d, %d bis %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
 
