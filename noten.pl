@@ -172,7 +172,6 @@ $select = "SELECT AVG(zensur) FROM $fach";
 my ( $durchschnitt ) = $dbh->selectrow_array( $select );
 
 print $csv sprintf "\n\nDurchschnitt: %.1f\n", $durchschnitt;
-$log->info( sprintf "Durchschnitt: %.1f", $durchschnitt );
 
 `csv2pdf --in $csv_datei --latex_encode --theme Redmond`;
 
