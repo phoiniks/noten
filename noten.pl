@@ -146,24 +146,7 @@ while ( 1 ){
 
 print $csv "\n\nNotenverteilung in der Klausur\n\n";
 
-my $select = "SELECT zensur FROM $fach";
-
-my %vorkommen;
-
-$sth = $dbh->prepare( $select );
-$sth->execute();
-while( my @row = $sth->fetchrow_array ){
-    $vorkommen{ $row[0] }++;
-}
-
-
-for my $schluessel ( sort { $a <=> $b } keys %vorkommen ){
-    print $csv sprintf "Zensur %d, %d-mal\n", $schluessel, $vorkommen{ $schluessel };
-    printf "Zensur %d, %d-mal\n", $schluessel, $vorkommen{ $schluessel };
-    $log->info( sprintf "Zensur %d, %d-mal", $schluessel, $vorkommen{ $schluessel } );
-}
-
-$select = "SELECT AVG(zensur) FROM $fach";
+my $select = "SELECT AVG(zensur) FROM $fach";
 
 my ( $durchschnitt ) = $dbh->selectrow_array( $select );
 
