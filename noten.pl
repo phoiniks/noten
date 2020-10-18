@@ -1,10 +1,12 @@
 #!/usr/bin/perl
 use autodie;
+use Data::Dumper;
 use DBI;
 use Log::Log4perl;
 use Modern::Perl;
 use POSIX qw( ceil floor modf round strftime trunc );
 use Tie::IxHash;
+use YAML qw( DumpFile LoadFile );
 
 BEGIN {
     use FindBin qw( $Bin );
@@ -32,26 +34,34 @@ chomp( my $punktzahl = <STDIN> );
 print "Bitte Fach eingeben: ";
 chomp( my $fach = <STDIN> );
 
+my ( $configFile ) = glob( "*.yml" );
+
+my $config = LoadFile( $configFile );
+
 my %zuordnung;
 tie %zuordnung, "Tie::IxHash";
-%zuordnung = (
-    0 => [0..19],
-    1 => [20..26],
-    2 => [27..32],
-    3 => [33..39],
-    4 => [40..44],
-    5 => [45..49],
-    6 => [50..54],
-    7 => [55..59],
-    8 => [60..64],
-    9 => [65..69],
-    10 => [70..74],
-    11 => [75..79],
-    12 => [80..84],
-    13 => [85..89],
-    14 => [90..94],
-    15 => [95..100],
-    );
+%zuordnung = map { $_ => $config->{ $_ } } sort { $a <=> $b } keys %$config;
+
+# %zuordnung = (
+#     0 => [0..19],
+#     1 => [20..26],
+#     2 => [27..32],
+#     3 => [33..39],
+#     4 => [40..44],
+#     5 => [45..49],
+#     6 => [50..54],
+#     7 => [55..59],
+#     8 => [60..64],
+#     9 => [65..69],
+#     10 => [70..74],
+#     11 => [75..79],
+#     12 => [80..84],
+#     13 => [85..89],
+#     14 => [90..94],
+#     15 => [95..100],
+#     );
+
+# DumpFile( "zuordnung.yml", \%zuordnung );
 
 my @notenbereiche;
 while ( my ( $schluessel, $werte ) = each %zuordnung ){
@@ -86,9 +96,9 @@ print $csv sprintf "Gesamtpunktzahl: %d\n\n", $punktzahl;
 my $punkte;
 for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
     printf "Note: %d, Anfang: %d, Ende: %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
-    $log->info( sprintf "Anfang: %d, Ende: %d, Note: %d", $schluessel, $ergebnis{ $schluessel }, $notenpunkte );
+    $log->info( sprintf "Noten: %d, Anfang: %d, Ende: %d, Note: %d", $notenpunkte, $schluessel, $ergebnis{ $schluessel } );
 
-    print $csv sprintf "%d bis %d: %d Punkte\n", $schluessel, $ergebnis{ $schluessel }, $notenpunkte;
+    print $csv sprintf "Zensur: %d, %d bis %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
 
     my $next = range( $schluessel, $ergebnis{ $schluessel }, 0.5 );
 
