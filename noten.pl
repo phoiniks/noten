@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#
 use autodie;
 use DBI;
 use Log::Log4perl;
@@ -145,7 +146,7 @@ while ( 1 ){
 
     $sth->execute( $schueler, $zensur, $punkte );
     
-    print $csv sprintf "Notenpunkte: %d, Punktzahl: %.1f\n", $zensur, $punkte_real;
+    print $csv sprintf "Zensur: %d, Punktzahl: %.1f\n", $zensur, $punkte_real;
 }
 
 print $csv "\n\nNotenverteilung in der Klausur\n\n";
