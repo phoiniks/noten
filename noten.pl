@@ -1,11 +1,12 @@
 #!/usr/bin/perl
 use autodie;
+use Data::Dumper;
 use DBI;
 use Log::Log4perl;
 use Modern::Perl;
 use POSIX qw( modf round strftime );
 use Tie::IxHash;
-use YAML qw( LoadFile );
+use YAML qw( DumpFile LoadFile );
 
 BEGIN {
     use FindBin qw( $Bin );
@@ -40,27 +41,6 @@ my $config = LoadFile( $configFile );
 my %zuordnung;
 tie %zuordnung, "Tie::IxHash";
 %zuordnung = map { $_ => $config->{ $_ } } sort { $a <=> $b } keys %$config;
-
-# %zuordnung = (
-#     0 => [0..19],
-#     1 => [20..26],
-#     2 => [27..32],
-#     3 => [33..39],
-#     4 => [40..44],
-#     5 => [45..49],
-#     6 => [50..54],
-#     7 => [55..59],
-#     8 => [60..64],
-#     9 => [65..69],
-#     10 => [70..74],
-#     11 => [75..79],
-#     12 => [80..84],
-#     13 => [85..89],
-#     14 => [90..94],
-#     15 => [95..100],
-#     );
-
-# DumpFile( "zuordnung.yml", \%zuordnung );
 
 my @notenbereiche;
 while ( my ( $schluessel, $werte ) = each %zuordnung ){
