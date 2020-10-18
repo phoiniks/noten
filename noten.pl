@@ -114,8 +114,6 @@ my $table = $fach;
 
 my $create = "CREATE TABLE IF NOT EXISTS $table(id INTEGER PRIMARY KEY, schueler TEXT, zensur INTEGER, punkte REAL, zeit DATE DEFAULT (DATETIME('NOW', 'LOCALTIME')))";
 
-print "$create\n";
-
 my $rv = $dbh->do( $create );
 
 my $insert = "INSERT INTO $table (schueler, zensur, punkte) VALUES( ?, ?, ? )";
@@ -162,17 +160,16 @@ while( my @row = $sth->fetchrow_array ){
     $vorkommen{ $row[0] }++;
 }
 
-my $zaehler = 0;
-my $summe = 0;
+
 for my $schluessel ( sort { $a <=> $b } keys %vorkommen ){
     print $csv sprintf "Zensur %.1f, %d\n", $schluessel, $vorkommen{ $schluessel };
     printf "Zensur %.1f, %d\n", $schluessel, $vorkommen{ $schluessel };
     $log->info( sprintf "Zensur %.1f, %d", $schluessel, $vorkommen{ $schluessel } );
-    $summe += $schluessel;
-    $zaehler++;
 }
 
-my $durchschnitt = $summe / $zaehler;
+$select = "SELECT AVG(zensur) FROM $fach";
+
+my ( $durchschnitt ) = $dbh->selectrow_array( $select );
 
 print $csv sprintf "\n\nDurchschnitt: %.1f\n", $durchschnitt;
 
