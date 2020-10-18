@@ -2,7 +2,7 @@ sub range {
     my ( $beginn, $ende, $schritt ) = @_;
 
     if ( $beginn == 0 ){
-	$beginn = '0.0';
+	$beginn = '0';
     }
     
     my $akkumulator = $beginn;
@@ -10,9 +10,12 @@ sub range {
     my $merker = 1;
     
     return sub {
-	if ( $merker == 1 ){
+	if ( $merker == 1 && $beginn =~ m/\d+\.\d+/g ){
 	    $merker++;
 	    return sprintf "%f", $beginn;
+	} elsif ( $merker == 1 && $beginn =~ m/\d+/g ){
+	    $merker++;
+	    return sprintf "%d", $beginn;
 	}
 	
 	$ende -= $schritt;
