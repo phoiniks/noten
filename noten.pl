@@ -3,7 +3,7 @@ use autodie;
 use DBI;
 use Log::Log4perl;
 use Modern::Perl;
-use POSIX qw( round strftime );
+use POSIX qw( modf round strftime );
 use Tie::IxHash;
 use YAML qw( LoadFile );
 
@@ -148,7 +148,6 @@ while( my @row = $sth->fetchrow_array ){
     $vorkommen{ $row[0] }++;
 }
 
-
 for my $schluessel ( sort { $a <=> $b } keys %vorkommen ){
     print $csv sprintf "Zensur %.1f, %d\n", $schluessel, $vorkommen{ $schluessel };
     printf "Zensur %.1f, %d\n", $schluessel, $vorkommen{ $schluessel };
@@ -158,6 +157,8 @@ for my $schluessel ( sort { $a <=> $b } keys %vorkommen ){
 $select = "SELECT AVG(zensur) FROM $fach";
 
 my ( $durchschnitt ) = $dbh->selectrow_array( $select );
+
+$log->info( sprintf "Durchschnitt: %.1f", $durchschnitt );
 
 print $csv sprintf "\n\nDurchschnitt: %.1f\n", $durchschnitt;
 
