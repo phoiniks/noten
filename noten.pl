@@ -6,7 +6,7 @@ use Log::Log4perl;
 use Modern::Perl;
 use POSIX qw( modf round strftime );
 use Tie::IxHash;
-use YAML qw( DumpFile LoadFile );
+use YAML qw( LoadFile );
 
 BEGIN {
     use FindBin qw( $Bin );
@@ -17,7 +17,9 @@ BEGIN {
 use Paar qw( paar intervalle );
 use Range qw( range );
 
-Log::Log4perl::init( 'log4perl.conf' );
+my $home = $ENV{ HOME };
+
+Log::Log4perl::init( $home . "/bin/NOTEN/log4perl.conf" );
 
 my $log = Log::Log4perl->get_logger();
 
@@ -34,9 +36,7 @@ chomp( my $punktzahl = <STDIN> );
 print "Bitte Fach eingeben: ";
 chomp( my $fach = <STDIN> );
 
-my ( $configFile ) = glob( "*.yml" );
-
-my $config = LoadFile( $configFile );
+my $config = LoadFile( $home . "/bin/NOTEN/zuordnung.yml" );
 
 my %zuordnung;
 tie %zuordnung, "Tie::IxHash";
@@ -87,7 +87,6 @@ for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
 	$punkte = sprintf "%.1f", $punkte;
 	$log->info( $punkte );
 	$punkte{ $punkte } = $notenpunkte; 
-	# $log->info( $notenpunkte . ": " . $punkte );
     }
 
     $punkte{ sprintf "%.1f", $ergebnis{ $schluessel } } = $notenpunkte;
@@ -117,10 +116,18 @@ while ( 1 ){
 	last;
     }
 
+    $log->info( sprintf "Schüler/in: %s", $schueler );
+    
     print "Punkte: ";
     chomp( $punkte_real = <STDIN> );
 
-    if ( $punkte_real > $punktzahl || $punkte_real < 0 || $punkte_real =~ m/\,/g ){
+    if ( !$punkte_real ){
+	$punkte_real = "0.0";
+    }
+    
+    $log->info( sprintf "PUNKTE_REAL: %.1f", $punkte_real );
+
+    if ( $punkte_real > $punktzahl || $punkte_real < 0 || $punkte_real =~ m/\,/g || !$punkte_real ){
 	print "*******************************************************************************\n";
 	print "***************************** Unzulässige Eingabe! ****************************\n";
 	print "*******************************************************************************\n";	
@@ -130,7 +137,7 @@ while ( 1 ){
     print $csv sprintf "Schüler/in: %s, ", $schueler;
 
     $punkte = round $punkte_real;
-    my $zensur = $punkte{ sprintf "%.1f", round $punkte };
+    my $zensur = $punkte{ sprintf "%.1f", $punkte };
 
     $sth->execute( $schueler, $zensur, $punkte );
     
@@ -151,16 +158,20 @@ while( my @row = $sth->fetchrow_array ){
 
 
 for my $schluessel ( sort { $a <=> $b } keys %vorkommen ){
-    print $csv sprintf "Zensur %.1f, %d\n", $schluessel, $vorkommen{ $schluessel };
-    printf "Zensur %.1f, %d\n", $schluessel, $vorkommen{ $schluessel };
-    $log->info( sprintf "Zensur %.1f, %d", $schluessel, $vorkommen{ $schluessel } );
+    print $csv sprintf "Zensur %d, %d-mal\n", $schluessel, $vorkommen{ $schluessel };
+    printf "Zensur %d, %d-mal\n", $schluessel, $vorkommen{ $schluessel };
+    $log->info( sprintf "Zensur %d, %d-mal", $schluessel, $vorkommen{ $schluessel } );
 }
 
 $select = "SELECT AVG(zensur) FROM $fach";
 
 my ( $durchschnitt ) = $dbh->selectrow_array( $select );
 
-print $csv sprintf "\n\nDurchschnitt: %.1f\n", $durchschnitt;
+print $csv "\n";
+
+printf "\nDurchschnitt: %.1f\n", $durchschnitt;
+$log->info( sprintf "Durchschnitt: %.1f", $durchschnitt );
+print $csv sprintf "Durchschnitt: %.1f\n", $durchschnitt;
 
 `csv2pdf --in $csv_datei --latex_encode --theme Redmond`;
 
