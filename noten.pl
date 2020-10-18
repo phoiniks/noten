@@ -74,7 +74,7 @@ print $csv sprintf "Gesamtpunktzahl: %d\n\n", $punktzahl;
 my $punkte;
 for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
     printf "Note: %d, Anfang: %d, Ende: %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
-    $log->info( sprintf "Noten: %d, Anfang: %d, Ende: %d, Note: %d", $notenpunkte, $schluessel, $ergebnis{ $schluessel } );
+    $log->info( sprintf "Noten: %d, Anfang: %d, Ende: %d", $notenpunkte, $schluessel, $ergebnis{ $schluessel } );
 
     print $csv sprintf "Zensur: %d, %d bis %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
 
