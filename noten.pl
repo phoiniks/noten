@@ -27,16 +27,20 @@ my $lokalzeit = strftime "%A_%d_%B_%Y_%H:%M:%S", localtime;
 $log->info( "BEGINN" );
 $log->info( $lokalzeit );
 
-my $dbh = DBI->connect( "dbi:SQLite:dbname=:memory:", "", "", { PrintError => 1 } );
+my $dbh = DBI->connect( "dbi:SQLite:dbname=noten.db", "", "", { PrintError => 1 } );
 
 print "Bitte erreichbare Gesamtpunktzahl eingeben: ";
 chomp( my $punktzahl = <STDIN> );
 
 print "Bitte Fach eingeben: ";
 chomp( my $fach = <STDIN> );
+my $titel = $fach;
+$fach = lc $fach;
 
 print "Bitte Klasse eingeben: ";
 chomp( my $klasse = <STDIN> );
+
+my $datenbank = $fach . "_" . $klasse . "_" . $lokalzeit . ".db";
 
 my $config = LoadFile( $home . "/bin/NOTEN/zuordnung.yml" );
 
@@ -161,9 +165,9 @@ print $csv "\n";
 print "\n";
 
 for my $row ( @$notenverteilung ){
-    printf "Zensur: %d, %d-mal\n", @$row;
-    print $csv sprintf "Zensur: %d, %d-mal\n", @$row;
-    $log->info( sprintf "Zensur: %d, %d-mal\n", @$row );
+    printf "Zensur: %d, %d-mal\n", $row->[0], $row->[1];
+    print $csv sprintf "Zensur: %d, %d-mal\n", $row->[0], $row->[1];
+    $log->info( sprintf "Zensur: %d, %d-mal\n", $row->[0], $row->[1] );
 }
 
 printf "\nDurchschnitt: %.1f\n", $durchschnitt;
@@ -171,5 +175,7 @@ $log->info( sprintf "Durchschnitt: %.1f", $durchschnitt );
 print $csv sprintf "Durchschnitt: %.1f\n", $durchschnitt;
 
 `csv2pdf --in $csv_datei --latex_encode --theme Redmond`;
+
+`statistiken.r $fach $titel`;
 
 $log->info( "ENDE" );
