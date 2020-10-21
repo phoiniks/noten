@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 use autodie;
-use Data::Dumper;
 use DBI;
 use Log::Log4perl;
 use Modern::Perl;
@@ -30,11 +29,14 @@ $log->info( $lokalzeit );
 
 my $dbh = DBI->connect( "dbi:SQLite:dbname=:memory:", "", "", { PrintError => 1 } );
 
-print "Bitte Gesamtpunktzahl eingeben: ";
+print "Bitte erreichbare Gesamtpunktzahl eingeben: ";
 chomp( my $punktzahl = <STDIN> );
 
 print "Bitte Fach eingeben: ";
 chomp( my $fach = <STDIN> );
+
+print "Bitte Klasse eingeben: ";
+chomp( my $klasse = <STDIN> );
 
 my $config = LoadFile( $home . "/bin/NOTEN/zuordnung.yml" );
 
@@ -70,7 +72,8 @@ tie %punkte, "Tie::IxHash";
 
 print $csv sprintf "Datum: %s Uhr\n", strftime "%A, %d %B %Y, %H:%M", localtime;
 print $csv sprintf "Fach: %s\n", $fach;
-print $csv sprintf "Gesamtpunktzahl: %d\n\n", $punktzahl;
+print $csv sprintf "Klasse: %s\n", $klasse;
+print $csv sprintf "Erreichbare Gesamtpunktzahl: %d\n\n", $punktzahl;
 
 my $punkte;
 for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
@@ -146,11 +149,22 @@ while ( 1 ){
 
 print $csv "\n\nNotenverteilung in der Klausur\n\n";
 
-my $select = "SELECT AVG(zensur) FROM $fach";
+my $select = "SELECT zensur, COUNT(zensur) FROM $fach GROUP BY zensur";
+
+my $notenverteilung = $dbh->selectall_arrayref( $select );
+
+$select = "SELECT AVG(zensur) FROM $fach";
 
 my ( $durchschnitt ) = $dbh->selectrow_array( $select );
 
 print $csv "\n";
+print "\n";
+
+for my $row ( @$notenverteilung ){
+    printf "Zensur: %d, %d-mal\n", @$row;
+    print $csv sprintf "Zensur: %d, %d-mal\n", @$row;
+    $log->info( sprintf "Zensur: %d, %d-mal\n", @$row );
+}
 
 printf "\nDurchschnitt: %.1f\n", $durchschnitt;
 $log->info( sprintf "Durchschnitt: %.1f", $durchschnitt );
