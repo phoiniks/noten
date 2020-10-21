@@ -64,3 +64,8 @@ source .profile
 
 
 und können nun über einen einfachen Aufruf von noten mit der Eingabe beginnen.
+
+
+PS: Wenn Sie Fragen haben, wenden Sie sich vertrauensvoll an mich: phoiniks@grellopolis.de.
+
+ich helfe Ihnen dann gern weiter.
