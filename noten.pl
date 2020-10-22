@@ -13,7 +13,7 @@ BEGIN {
     use lib "$Bin/Range";
 }
 
-use Paar qw( paar intervalle );
+use Paar qw( intervalle );
 use Range qw( range );
 
 my $home = $ENV{ HOME };
@@ -131,8 +131,6 @@ while ( 1 ){
     if ( !$punkte_real ){
 	$punkte_real = "0.0";
     }
-    
-    $log->info( sprintf "PUNKTE_REAL: %.1f", $punkte_real );
 
     if ( $punkte_real > $punktzahl || $punkte_real < 0 || $punkte_real =~ m/\,/g || !$punkte_real ){
 	print "*******************************************************************************\n";
@@ -147,7 +145,8 @@ while ( 1 ){
     my $zensur = $punkte{ sprintf "%.1f", $punkte };
 
     $sth->execute( $schueler, $zensur, $punkte );
-    
+
+    $log->debug( sprintf "Zensur: %d, Punktzahl: %.1f\n", $zensur, $punkte_real );
     print $csv sprintf "Zensur: %d, Punktzahl: %.1f\n", $zensur, $punkte_real;
 }
 
@@ -176,6 +175,6 @@ print $csv sprintf "Durchschnitt: %.1f\n", $durchschnitt;
 
 `csv2pdf --in $csv_datei --latex_encode --theme Redmond`;
 
-`statistiken.r $fach $titel`;
+`./statistiken.r $fach $titel`;
 
 $log->info( "ENDE" );
