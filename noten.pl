@@ -40,7 +40,7 @@ $fach = lc $fach;
 print "Bitte Klasse eingeben: ";
 chomp( my $klasse = <STDIN> );
 
-my $datenbank = $fach . "_" . $klasse . "_" . $lokalzeit . ".db";
+my $datenbank = $titel . "_" . $klasse . "_" . $lokalzeit . ".db";
 
 my $config = LoadFile( $home . "/bin/NOTEN/zuordnung.yml" );
 
