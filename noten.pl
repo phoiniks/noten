@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use autodie;
 use DBI;
+use Encode qw( decode encode );
 use Log::Log4perl;
 use Modern::Perl;
 use POSIX qw( modf round strftime );
@@ -13,19 +14,38 @@ BEGIN {
     use lib "$Bin/Range";
 }
 
-use Paar qw( paar intervalle );
+use Paar qw( intervalle );
 use Range qw( range );
 
 my $home = $ENV{ HOME };
 
 Log::Log4perl::init( $home . "/bin/NOTEN/log4perl.conf" );
-
 my $log = Log::Log4perl->get_logger();
-
 my $lokalzeit = strftime "%A_%d_%B_%Y_%H:%M:%S", localtime;
 
 $log->info( "BEGINN" );
 $log->info( $lokalzeit );
+
+
+my %Deutsch_Dekodierung = (
+    'Ä' => 'Ae', 'ä' => 'ae',
+    'Ö' => 'Oe', 'ö' => 'oe',
+    'Ü' => 'Ue', 'ü' => 'ue',
+    'ß' => 'ss', 'ñ' => 'nh',
+    'á' => 'a', 'é' => 'e',
+    'í' => 'i', 'ó' => 'o',
+    'ú' => 'u'
+    );
+
+
+sub deutsch_zu_ascii{
+    my ( $deutsch ) = @_;
+
+    $deutsch =~ s/([ÄäÖöÜüß]+)/$Deutsch_Dekodierung{$1}/eg;
+
+    return $deutsch;
+}
+
 
 my $dbh = DBI->connect( "dbi:SQLite:dbname=noten.db", "", "", { PrintError => 1 } );
 
@@ -34,13 +54,18 @@ chomp( my $punktzahl = <STDIN> );
 
 print "Bitte Fach eingeben: ";
 chomp( my $fach = <STDIN> );
+$log->info( $fach );
+my $fach_dekodiert = deutsch_zu_ascii( $fach );
+$log->info( sprintf "dekodiert: %s", $fach_dekodiert );
 my $titel = $fach;
+my $titel_dekodiert = deutsch_zu_ascii( $titel );
+$log->info( sprintf "Titel dekodiert: %s", $titel_dekodiert );
 $fach = lc $fach;
 
 print "Bitte Klasse eingeben: ";
 chomp( my $klasse = <STDIN> );
 
-my $datenbank = $fach . "_" . $klasse . "_" . $lokalzeit . ".db";
+my $datenbank = $fach_dekodiert . "_" . $klasse . "_" . $lokalzeit . ".db";
 
 my $config = LoadFile( $home . "/bin/NOTEN/zuordnung.yml" );
 
@@ -67,17 +92,18 @@ my $ergebnis = intervalle( \@notenbereiche );
 
 my %ergebnis = %$ergebnis;
 
-my $csv_datei = "Noten_" . $fach . "_" . $lokalzeit . ".csv";
+my $csv_datei = "Noten_" . $titel_dekodiert . "_" . $lokalzeit . ".csv";
 
 open my $csv, ">", $csv_datei;
 my $notenpunkte = 0;
-my %punkte;
-tie %punkte, "Tie::IxHash";
 
 print $csv sprintf "Datum: %s Uhr\n", strftime "%A, %d %B %Y, %H:%M", localtime;
-print $csv sprintf "Fach: %s\n", $fach;
+print $csv sprintf "Fach: %s\n", $titel;
 print $csv sprintf "Klasse: %s\n", $klasse;
 print $csv sprintf "Erreichbare Gesamtpunktzahl: %d\n\n", $punktzahl;
+
+my %punkte;
+tie %punkte, "Tie::IxHash";
 
 my $punkte;
 for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
@@ -105,7 +131,7 @@ for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
 
 print $csv "\n\n\n";
 
-my $table = $fach;
+my $table = $fach_dekodiert;
 
 my $create = "CREATE TABLE IF NOT EXISTS $table(id INTEGER PRIMARY KEY, schueler TEXT, zensur INTEGER, punkte REAL, zeit DATE DEFAULT (DATETIME('NOW', 'LOCALTIME')))";
 
@@ -153,11 +179,11 @@ while ( 1 ){
 
 print $csv "\n\nNotenverteilung in der Klausur\n\n";
 
-my $select = "SELECT zensur, COUNT(zensur) FROM $fach GROUP BY zensur";
+my $select = "SELECT zensur, COUNT(zensur) FROM $table GROUP BY zensur";
 
 my $notenverteilung = $dbh->selectall_arrayref( $select );
 
-$select = "SELECT AVG(zensur) FROM $fach";
+$select = "SELECT AVG(zensur) FROM $table";
 
 my ( $durchschnitt ) = $dbh->selectrow_array( $select );
 
@@ -176,6 +202,6 @@ print $csv sprintf "Durchschnitt: %.1f\n", $durchschnitt;
 
 `csv2pdf --in $csv_datei --latex_encode --theme Redmond`;
 
-`statistiken.r $fach $titel`;
+`statistiken.r $table $titel`;
 
 $log->info( "ENDE" );
