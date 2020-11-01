@@ -3,21 +3,23 @@ Anwendung für die Berechnung von Zensuren in der gymnasialen Oberstufe unter De
 
 Damit das Skript funktioniert, benötigen Sie legen Sie einige Bibliotheken, darunter:
 
-csv2pdf, nach dem Sie per apt-cache (apt-cache search csv2pdf) suchen. Die fehlenden
+csv2pdf, nach dem Sie per apt-cache (apt-cache search csv2pdf) suchen. Sie könnten
 
-Perl-Module ermitteln Sie so lange mit Hilfe von perl -c noten.pl, bis Ihnen keine
+allerdings auch das cpan (Comprehensive Perl Archive Network) wie folgt verwenden:
 
-mehr fehlen (Wenn ich in nächster Zukunft Zeit habe, könnten Sie sich vielleicht bald
+cpan LaTeX::Table. Die sonst noch fehlenden Perl-Module ermitteln Sie so lange mit
 
-an den Segnungen einer anständigen Installationsroutine erfreuen, das kann allerdings
+Hilfe von perl -c noten.pl, bis Ihnen keine mehr fehlen (Wenn ich in nächster Zukunft
 
-noch etwas dauern. Falls noch nicht geschehen, legen Sie bitte in Ihrem
+Zeit habe, könnten Sie sich vielleicht bald an den Segnungen einer anständigen
 
-Home-Verzeichnis /home/{user} ein bin-Verzeichnis an, in das sie den Ordner NOTEN
+Installationsroutine erfreuen, das kann allerdings noch etwas dauern.) Falls noch
 
-kopieren. Würden Sie sich im Verzeichnis /home/phoiniks befinden müssten Folgendes
+nicht geschehen, legen Sie bitte in Ihrem Home-Verzeichnis /home/{user} ein bin-Verzeichnis
 
-tun:
+an, in das sie den Ordner NOTEN kopieren. Würden Sie sich im Verzeichnis /home/phoiniks
+
+befinden müssten Folgendes tun:
 
 
 cp -r NOTEN bin
@@ -64,6 +66,19 @@ source .profile
 
 
 und können nun über einen einfachen Aufruf von noten mit der Eingabe beginnen.
+
+
+Ach, ja, ehe ichs vergesse: Wenn Sie ein Diagramm mit R erzeugen wollen, brauchen Sie R
+
+und die im Skript statistiken.r im Kopf angegebenen Module. Legen Sie bitte im Verzeichnis
+
+/home/{user}/bin mit ln -s NOTEN/statistiken.r statistik den im Perl-Skript verwendeten
+
+symbolischen Link an. Brauchen Sie das mit dem R-Skript erzeugte Diagramm nicht, so
+
+kommentieren Sie die entsprechende Zeile am Ende des Perl-Skripts einfach aus mit einem
+
+Hash-Zeichen (#) aus.
 
 
 PS: Wenn Sie Fragen haben, wenden Sie sich vertrauensvoll an mich: phoiniks@grellopolis.de.
