@@ -157,8 +157,6 @@ while ( 1 ){
     if ( !$punkte_real ){
 	$punkte_real = "0.0";
     }
-    
-    $log->info( sprintf "PUNKTE_REAL: %.1f", $punkte_real );
 
     if ( $punkte_real > $punktzahl || $punkte_real < 0 || $punkte_real =~ m/\,/g || !$punkte_real ){
 	print "*******************************************************************************\n";
@@ -173,7 +171,8 @@ while ( 1 ){
     my $zensur = $punkte{ sprintf "%.1f", $punkte };
 
     $sth->execute( $schueler, $zensur, $punkte );
-    
+
+    $log->debug( sprintf "Zensur: %d, Punktzahl: %.1f\n", $zensur, $punkte_real );
     print $csv sprintf "Zensur: %d, Punktzahl: %.1f\n", $zensur, $punkte_real;
 }
 
