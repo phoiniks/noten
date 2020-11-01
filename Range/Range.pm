@@ -1,8 +1,8 @@
 sub range {
     my ( $beginn, $ende, $schritt ) = @_;
 
-    if ( $beginn == 0 ){
-	$beginn = '0';
+    if ( $beginn == 0){
+	$beginn = '0.0';
     }
     
     my $akkumulator = $beginn;
@@ -31,4 +31,3 @@ sub range {
 }
 
 1
-
