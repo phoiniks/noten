@@ -38,7 +38,7 @@ my %Deutsch_Dekodierung = (
     );
 
 
-sub deutsch_zu_ascii{
+sub utf8_zu_ascii{
     my ( $deutsch ) = @_;
 
     $deutsch =~ s/([ÄäÖöÜüß]+)/$Deutsch_Dekodierung{$1}/eg;
@@ -56,10 +56,10 @@ chomp( my $gesamtpunktzahl = <STDIN> );
 print "Bitte Fach eingeben: ";
 chomp( my $fach = <STDIN> );
 $log->info( $fach );
-my $fach_dekodiert = deutsch_zu_ascii( $fach );
+my $fach_dekodiert = utf8_zu_ascii( $fach );
 $log->info( sprintf "dekodiert: %s", $fach_dekodiert );
 my $titel = $fach;
-my $titel_dekodiert = deutsch_zu_ascii( $titel );
+my $titel_dekodiert = utf8_zu_ascii( $titel );
 $log->info( sprintf "Titel dekodiert: %s", $titel_dekodiert );
 $fach = lc $fach;
 
