@@ -47,10 +47,11 @@ sub deutsch_zu_ascii{
 }
 
 
-my $dbh = DBI->connect( "dbi:SQLite:dbname=noten.db", "", "", { PrintError => 1 } );
+my $dbh = DBI->connect( "dbi:SQLite:dbname=noten.db",
+			"", "", { PrintError => 1 } );
 
 print "Bitte erreichbare Gesamtpunktzahl eingeben: ";
-chomp( my $punktzahl = <STDIN> );
+chomp( my $gesamtpunktzahl = <STDIN> );
 
 print "Bitte Fach eingeben: ";
 chomp( my $fach = <STDIN> );
@@ -75,7 +76,7 @@ tie %zuordnung, "Tie::IxHash";
 
 my @notenbereiche;
 while ( my ( $schluessel, $werte ) = each %zuordnung ){
-    my @werte = map { (modf ($_ * $punktzahl/100))[1] } @$werte;
+    my @werte = map { (modf ($_ * $gesamtpunktzahl/100))[1] } @$werte;
     @werte = reverse( @werte );
     $zuordnung{ $schluessel } = \@werte;
     $log->info( $schluessel . ": " . "$werte[0]" );
@@ -100,17 +101,20 @@ my $notenpunkte = 0;
 print $csv sprintf "Datum: %s Uhr\n", strftime "%A, %d %B %Y, %H:%M", localtime;
 print $csv sprintf "Fach: %s\n", $titel;
 print $csv sprintf "Klasse: %s\n", $klasse;
-print $csv sprintf "Erreichbare Gesamtpunktzahl: %d\n\n", $punktzahl;
+print $csv sprintf "Erreichbare Gesamtpunktzahl: %d\n\n", $gesamtpunktzahl;
 
 my %punkte;
 tie %punkte, "Tie::IxHash";
 
 my $punkte;
 for my $schluessel ( sort { $a <=> $b } keys %ergebnis ){
-    printf "Zensur: %d, Anfang: %d, Ende: %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
-    $log->info( sprintf "Zensur: %d, Anfang: %d, Ende: %d", $notenpunkte, $schluessel, $ergebnis{ $schluessel } );
+    printf "Zensur: %d, Anfang: %d, Ende: %d\n",
+	    $notenpunkte, $schluessel, $ergebnis{ $schluessel };
+    $log->info( sprintf "Zensur: %d, Anfang: %d, Ende: %d",
+ 			 $notenpunkte, $schluessel, $ergebnis{ $schluessel } );
 
-    print $csv sprintf "Zensur: %d, %d bis %d\n", $notenpunkte, $schluessel, $ergebnis{ $schluessel };
+    print $csv sprintf "Zensur: %d, %d bis %d\n",
+			$notenpunkte, $schluessel, $ergebnis{ $schluessel };
 
     my $next = range( $schluessel, $ergebnis{ $schluessel }, 0.5 );
 
@@ -133,7 +137,9 @@ print $csv "\n\n\n";
 
 my $table = $fach_dekodiert;
 
-my $create = "CREATE TABLE IF NOT EXISTS $table(id INTEGER PRIMARY KEY, schueler TEXT, zensur INTEGER, punkte REAL, zeit DATE DEFAULT (DATETIME('NOW', 'LOCALTIME')))";
+my $create = "CREATE TABLE IF NOT EXISTS $table(id INTEGER PRIMARY KEY,
+	      schueler TEXT, zensur INTEGER, punkte REAL, zeit DATE DEFAULT
+              (DATETIME('NOW', 'LOCALTIME')))";
 
 my $rv = $dbh->do( $create );
 
@@ -158,10 +164,16 @@ while ( 1 ){
 	$punkte_real = "0.0";
     }
 
-    if ( $punkte_real > $punktzahl || $punkte_real < 0 || $punkte_real =~ m/\,/g || !$punkte_real ){
-	print "*******************************************************************************\n";
-	print "***************************** Unzulässige Eingabe! ****************************\n";
-	print "*******************************************************************************\n";	
+    if ( $punkte_real > $gesamtpunktzahl || $punkte_real < 0 
+	|| $punkte_real =~ m/\,/g || !$punkte_real ) {
+	print "*" x 70;
+	print "\n";
+	print "*" x 28;
+	print " Unzulässige Eingabe! ";
+	print "*" x 28;
+	print "\n";
+	print "*" x 70;
+	print "\n";
 	next;
     }
 
@@ -172,8 +184,10 @@ while ( 1 ){
 
     $sth->execute( $schueler, $zensur, $punkte );
 
-    $log->debug( sprintf "Zensur: %d, Punktzahl: %.1f\n", $zensur, $punkte_real );
-    print $csv sprintf "Zensur: %d, Punktzahl: %.1f\n", $zensur, $punkte_real;
+    $log->debug( sprintf "Zensur: %d, Punktzahl: %.1f\n",
+			  $zensur, $punkte_real );
+    print $csv sprintf "Zensur: %d, Punktzahl: %.1f\n", 
+			$zensur, $punkte_real;
 }
 
 print $csv "\n\nNotenverteilung in der Klausur\n\n";
