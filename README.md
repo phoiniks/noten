@@ -1,5 +1,6 @@
 # noten
-Anwendung für die Berechnung von Zensuren in der gymnasialen Oberstufe unter Debian.
+
+Anwendung für die Berechnung von Zensuren in der gymnasialen Oberstufe.
 
 Damit das Skript funktioniert, benötigen Sie legen Sie einige Bibliotheken, darunter:
 
@@ -83,4 +84,6 @@ Hash-Zeichen (#) aus.
 
 PS: Wenn Sie Fragen haben, wenden Sie sich vertrauensvoll an mich: phoiniks@grellopolis.de.
 
-ich helfe Ihnen dann gern weiter.
+ich helfe Ihnen dann gern weiter. Ich arbeite übrigens momentan an einer Verschlankung des
+
+Codes in Richtung Objektorientierung mit Moose sowie an einer Installationsroutine.
