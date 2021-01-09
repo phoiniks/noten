@@ -2,7 +2,7 @@
 
 Anwendung für die Berechnung von Zensuren in der gymnasialen Oberstufe.
 
-Damit das Skript funktioniert, benötigen Sie legen Sie einige Bibliotheken, darunter:
+Damit das Skript funktioniert, benötigen Sie einige Bibliotheken, darunter:
 
 csv2pdf, nach dem Sie per apt-cache (apt-cache search csv2pdf) suchen. Sie könnten
 
@@ -12,7 +12,7 @@ cpan LaTeX::Table. Die sonst noch fehlenden Perl-Module ermitteln Sie so lange m
 
 Hilfe von perl -c noten.pl, bis Ihnen keine mehr fehlen (Wenn ich in nächster Zukunft
 
-Zeit habe, könnten Sie sich vielleicht bald an den Segnungen einer anständigen
+Zeit habe, könnten Sie sich vielleicht bald der Segnungen einer anständigen
 
 Installationsroutine erfreuen, das kann allerdings noch etwas dauern.) Falls noch
 
@@ -20,7 +20,7 @@ nicht geschehen, legen Sie bitte in Ihrem Home-Verzeichnis /home/{user} ein bin-
 
 an, in das sie den Ordner NOTEN kopieren. Würden Sie sich im Verzeichnis /home/phoiniks
 
-befinden müssten Folgendes tun:
+befinden, müssten Sie Folgendes tun:
 
 
 cp -r NOTEN bin
